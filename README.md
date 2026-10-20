@@ -40,3 +40,4 @@ A production-grade, polyglot-persistence carbon tracking web application built w
     ├──► [ Spring Data JPA ] ──────► [ H2 Database (SQL: Users & Points) ]
     ├──► [ Spring Data MongoDB ] ──► [ MongoDB Atlas (NoSQL: Activity Logs) ]
     └──► [ RestTemplate ] ────────► [ Groq AI API (LPU Inference Engine) ]
+`````
