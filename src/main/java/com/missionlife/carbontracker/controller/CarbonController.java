@@ -11,7 +11,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/carbon")
-@CrossOrigin(origins = "*") // Frontend se connect karne ke liye
+@CrossOrigin(origins = "*")
 public class CarbonController {
 
     @Autowired
@@ -20,19 +20,16 @@ public class CarbonController {
     @Autowired
     private UserRepository userRepository;
 
-    // 1. Test API
     @GetMapping("/test")
     public String testApi() {
         return "Mission LiFE Carbon Tracker Backend is Running Successfully! 🚀";
     }
 
-    // 2. Naya User Register karne ke liye API
     @PostMapping("/register")
     public User registerUser(@RequestBody User user) {
         return userRepository.save(user);
     }
 
-    // 3. Activity add karne aur Carbon calculate karne ki API
     @PostMapping("/add-activity")
     public ActivityLog addActivity(@RequestBody Map<String, Object> request) {
         Long userId = Long.valueOf(request.get("userId").toString());

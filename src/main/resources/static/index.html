@@ -3,76 +3,536 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mission LiFE - Carbon Tracker & AI Coach</title>
+    <title>Mission LiFE - Advanced Carbon & AI Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #eef2f3; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
-        h1 { color: #2c3e50; text-align: center; }
-        .section { margin-bottom: 30px; padding: 20px; background: #f9f9f9; border-radius: 8px; border-left: 5px solid #27ae60; }
-        label { font-weight: bold; display: block; margin-top: 10px; }
-        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
-        button { background: #27ae60; color: white; border: none; padding: 12px 20px; margin-top: 15px; cursor: pointer; border-radius: 5px; font-size: 16px; width: 100%; }
-        button:hover { background: #219653; }
-        .result { margin-top: 15px; padding: 10px; background: #e8f8f5; border: 1px solid #a3e4d7; border-radius: 5px; }
-        
-        /* AI Chat Widget Styling */
-        .chat-box { background: #fdfefe; border: 1px solid #d5dbdb; border-radius: 8px; padding: 15px; height: 200px; overflow-y: scroll; margin-bottom: 10px; }
-        .chat-message { margin: 8px 0; padding: 8px; border-radius: 5px; }
-        .user-msg { background: #e1f5fe; text-align: right; }
-        .ai-msg { background: #e8f8f5; text-align: left; }
+        :root {
+            --bg-deep: #0f172a;
+            --surface: #1e293b;
+            --surface-glass: rgba(30, 41, 59, 0.75);
+            --primary: #10b981;
+            --primary-glow: rgba(16, 185, 129, 0.4);
+            --accent: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border-color: rgba(255, 255, 255, 0.1);
+        }
+        * { box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-deep);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(56, 189, 248, 0.1) 0px, transparent 50%);
+        }
+
+        /* Login Screen */
+        #login-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--bg-deep);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .login-card {
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            padding: 40px;
+            border-radius: 24px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .login-card h2 { color: #34d399; margin-bottom: 10px; }
+        .login-card p { color: var(--text-muted); font-size: 0.95rem; margin-bottom: 25px; }
+
+        /* App Layout with Sidebar */
+        #app-container {
+            display: none;
+            min-height: 100vh;
+            display: flex;
+        }
+        .sidebar {
+            width: 280px;
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--border-color);
+            display: flex;
+            flex-direction: column;
+            padding: 24px;
+            position: fixed;
+            height: 100vh;
+            box-sizing: border-box;
+        }
+        .sidebar-brand {
+            font-size: 1.25rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #34d399 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-links {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex-grow: 1;
+        }
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 14px 18px;
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .nav-btn:hover, .nav-btn.active {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .user-profile-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+        }
+        .user-profile-box .name { font-weight: 700; color: #38bdf8; }
+        .user-profile-box .tokens { color: #34d399; font-weight: 800; margin-top: 4px; }
+
+        /* Main Content Area */
+        .main-content {
+            margin-left: 280px;
+            flex-grow: 1;
+            padding: 40px;
+            box-sizing: border-box;
+            max-width: calc(100% - 280px);
+        }
+        .top-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            background: var(--surface-glass);
+            backdrop-filter: blur(16px);
+            padding: 16px 24px;
+            border-radius: 16px;
+            border: 1px solid var(--border-color);
+        }
+        .top-header h2 { margin: 0; font-size: 1.5rem; color: #34d399; }
+        .token-badge {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            color: #34d399;
+            padding: 8px 16px;
+            border-radius: 99px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* Slide Panels */
+        .slide-panel {
+            display: none;
+            background: var(--surface-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        .slide-panel.active { display: block; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Quick-Select Visual Cards */
+        .quick-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .quick-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-card:hover, .quick-card.selected {
+            border-color: #34d399;
+            background: rgba(16, 185, 129, 0.15);
+            transform: translateY(-2px);
+        }
+        .quick-card .icon { font-size: 1.8rem; margin-bottom: 6px; }
+        .quick-card .title { font-size: 0.85rem; font-weight: 600; color: var(--text-main); }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        input, select {
+            width: 100%;
+            padding: 14px;
+            margin-top: 6px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            color: white;
+            font-size: 1rem;
+            font-family: inherit;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+        select option { background: var(--surface); color: white; }
+
+        .action-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: #0f172a;
+            border: none;
+            padding: 15px;
+            margin-top: 25px;
+            cursor: pointer;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            width: 100%;
+            box-shadow: 0 10px 20px -5px var(--primary-glow);
+            transition: all 0.2s;
+        }
+        .action-btn:hover { transform: translateY(-2px); }
+
+        .result-box {
+            margin-top: 20px;
+            padding: 18px;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            border-radius: 12px;
+            color: #34d399;
+            font-weight: 600;
+            line-height: 1.6;
+        }
+
+        /* AI Chat */
+        .chat-box {
+            background: rgba(15, 23, 42, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 16px;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .chat-message { padding: 10px 14px; border-radius: 10px; max-width: 80%; font-size: 0.95rem; }
+        .user-msg { background: rgba(56, 189, 248, 0.15); color: #38bdf8; align-self: flex-end; border: 1px solid rgba(56, 189, 248, 0.3); }
+        .ai-msg { background: rgba(16, 185, 129, 0.15); color: #34d399; align-self: flex-start; border: 1px solid rgba(16, 185, 129, 0.3); }
+
+        /* Tables */
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { padding: 14px; text-align: left; border-bottom: 1px solid var(--border-color); font-size: 0.95rem; }
+        th { color: #38bdf8; font-weight: 600; }
+        td { color: var(--text-main); }
+        .rank-1 { color: #facc15; font-weight: 800; }
+        .rank-2 { color: #e2e8f0; font-weight: 700; }
+        .rank-3 { color: #fb923c; font-weight: 700; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>🌱 Mission LiFE Carbon Tracker</h1>
-    <p style="text-align: center; color: #7f8c8d;">Track your daily carbon footprint, earn eco-points, and consult your AI Sustainability Coach!</p>
+<!-- Login Screen -->
+<div id="login-screen">
+    <div class="login-card">
+        <h2>🌱 Mission LiFE Login</h2>
+        <p>Access your personalized carbon dashboard & compete on leaderboard</p>
+        <label>User ID / Username</label>
+        <input type="text" id="loginUserId" placeholder="e.g., amar123" value="1">
+        <button class="action-btn" onclick="handleLogin()">Login / Access Dashboard</button>
+    </div>
+</div>
 
-    <!-- Activity Tracker Section -->
-    <div class="section">
-        <h2>1. Log Your Daily Activity</h2>
-        <label>User ID (e.g., 1):</label>
-        <input type="number" id="userId" value="1">
-
-        <label>Activity Type:</label>
-        <select id="activityType">
-            <option value="Transport">Transport</option>
-            <option value="Energy">Energy</option>
-        </select>
-
-        <label>Action Details:</label>
-        <select id="actionDetails">
-            <option value="Petrol Car">Petrol Car (192g CO2/km)</option>
-            <option value="Public Bus">Public Bus (80g CO2/km)</option>
-            <option value="Bicycle">Bicycle (0g CO2 - Eco Friendly!)</option>
-            <option value="Electricity">Electricity (820g CO2/unit)</option>
-            <option value="Solar">Solar Energy (0g CO2 - Green!)</option>
-        </select>
-
-        <label>Quantity (km or Units):</label>
-        <input type="number" id="quantity" value="10">
-
-        <button onclick="submitActivity()">Calculate & Save Carbon</button>
-
-        <div id="activityResult" class="result" style="display: none;"></div>
+<!-- Main App Container with Sidebar -->
+<div id="app-container" style="display: none;">
+    <!-- Sidebar Navigation -->
+    <div class="sidebar">
+        <div class="sidebar-brand">
+            🌱 Mission LiFE
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn active" onclick="switchSlide(0, 'Carbon Telemetry Logger')">⚡ Carbon Logger</button>
+            <button class="nav-btn" onclick="switchSlide(1, 'AI Sustainability Coach')">🤖 AI Coach (Groq)</button>
+            <button class="nav-btn" onclick="switchSlide(2, 'Activity History')">📜 History & Tokens</button>
+            <button class="nav-btn" onclick="switchSlide(3, 'Global Eco-Leaderboard')">🏆 Eco-Leaderboard</button>
+            <button class="nav-btn" onclick="switchSlide(4, 'Impact Analytics')">📊 Impact Analytics</button>
+        </div>
+        <div class="user-profile-box">
+            <div>Logged in as: <span id="displayUser" class="name">User 1</span></div>
+            <div class="tokens">🪙 Tokens: <span id="sidebarTokens">150</span> pts</div>
+            <button onclick="handleLogout()" style="background:transparent; border:none; color:#f43f5e; cursor:pointer; font-weight:700; margin-top:8px; padding:0; font-size:0.85rem;">Logout 🚪</button>
+        </div>
     </div>
 
-    <!-- AI Coach Section -->
-    <div class="section" style="border-left-color: #2980b9;">
-        <h2>2. Mission LiFE AI Coach (Powered by Groq)</h2>
-        <div id="chatBox" class="chat-box">
-            <div class="chat-message ai-msg"><b>AI Coach:</b> Hello! Ask me any sustainability tips or how to reduce your carbon footprint.</div>
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <div class="top-header">
+            <h2 id="pageTitle">Carbon Telemetry Logger</h2>
+            <div class="token-badge">
+                🪙 Eco-Tokens: <span id="headerTokens">150</span> pts
+            </div>
         </div>
-        <input type="text" id="aiInput" placeholder="Ask e.g., How can I reduce plastic use?">
-        <button onclick="askAi()" style="background: #2980b9;">Ask Groq AI</button>
+
+        <!-- Slide 0: Advanced Carbon Logger -->
+        <div id="slide-0" class="slide-panel active">
+            <h2>🌿 Real-Time Carbon Emission Telemetry</h2>
+            <p style="color: var(--text-muted); margin-top: 0;">Select your activity category and instantly calculate CO2 impact & earn eco-tokens.</p>
+            
+            <label>Quick Select Activity</label>
+            <div class="quick-cards-grid">
+                <div class="quick-card selected" onclick="selectActivityPreset('Transport', 'Petrol Car', this)">
+                    <div class="icon">🚗</div>
+                    <div class="title">Petrol Car</div>
+                </div>
+                <div class="quick-card" onclick="selectActivityPreset('Transport', 'Public Bus', this)">
+                    <div class="icon">🚌</div>
+                    <div class="title">Public Bus</div>
+                </div>
+                <div class="quick-card" onclick="selectActivityPreset('Transport', 'Bicycle', this)">
+                    <div class="icon">🚲</div>
+                    <div class="title">Bicycle</div>
+                </div>
+                <div class="quick-card" onclick="selectActivityPreset('Energy', 'Electricity', this)">
+                    <div class="icon">⚡</div>
+                    <div class="title">Grid Power</div>
+                </div>
+                <div class="quick-card" onclick="selectActivityPreset('Energy', 'Solar', this)">
+                    <div class="icon">☀️</div>
+                    <div class="title">Solar Energy</div>
+                </div>
+            </div>
+
+            <!-- Hidden actual inputs for backend submission -->
+            <input type="hidden" id="activityType" value="Transport">
+            <input type="hidden" id="actionDetails" value="Petrol Car">
+
+            <label>Quantity (Distance in KM or Units) — <span id="livePreview" style="color:#38bdf8;">Est. CO2: ~1,920g</span></label>
+            <input type="number" id="quantity" value="10" oninput="updateLivePreview()">
+
+            <button class="action-btn" onclick="submitActivity()">Calculate & Save (+ Eco-Tokens)</button>
+
+            <div id="activityResult" class="result-box" style="display: none;"></div>
+        </div>
+
+        <!-- Slide 1: AI Coach -->
+        <div id="slide-1" class="slide-panel">
+            <h2>🧠 Groq AI Sustainability Coach</h2>
+            <div id="chatBox" class="chat-box">
+                <div class="chat-message ai-msg"><b>AI Coach:</b> Hello! Ask me how to optimize your carbon footprint and top the leaderboard.</div>
+            </div>
+            <input type="text" id="aiInput" placeholder="Ask e.g., How can I reduce home energy usage?">
+            <button class="action-btn" style="background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%); color: #0f172a;" onclick="askAi()">Ask Groq LPU Engine</button>
+        </div>
+
+        <!-- Slide 2: History & Tokens -->
+        <div id="slide-2" class="slide-panel">
+            <h2>📜 User History & Token Ledger</h2>
+            <p style="color: var(--text-muted); margin-top: 0;">Review your past logged activities and earned tokens.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Activity</th>
+                        <th>Details</th>
+                        <th>CO2 (grams)</th>
+                        <th>Tokens Earned</th>
+                    </tr>
+                </thead>
+                <tbody id="historyTableBody">
+                    <tr>
+                        <td>Transport</td>
+                        <td>Petrol Car (10 km)</td>
+                        <td>1,920g</td>
+                        <td><span style="color: #34d399; font-weight: 700;">+50 pts</span></td>
+                    </tr>
+                    <tr>
+                        <td>Energy</td>
+                        <td>Solar Energy (5 units)</td>
+                        <td>0g</td>
+                        <td><span style="color: #34d399; font-weight: 700;">+100 pts</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 3: Global Leaderboard -->
+        <div id="slide-3" class="slide-panel">
+            <h2>🏆 Global Eco-Leaderboard (Top Runners)</h2>
+            <p style="color: var(--text-muted); margin-top: 0;">Compete with other eco-conscious citizens worldwide and climb to the #1 spot!</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Citizen / User</th>
+                        <th>Tier Badge</th>
+                        <th>Total Eco-Tokens</th>
+                    </tr>
+                </thead>
+                <tbody id="leaderboardBody">
+                    <tr>
+                        <td class="rank-1">🥇 #1</td>
+                        <td><b>Priya Sharma</b></td>
+                        <td><span style="color: #facc15;">Eco-Master 🌟</span></td>
+                        <td><b>450 pts</b></td>
+                    </tr>
+                    <tr>
+                        <td class="rank-2">🥈 #2</td>
+                        <td><b>Rahul Verma</b></td>
+                        <td><span style="color: #38bdf8;">Eco-Warrior 🌿</span></td>
+                        <td><b>380 pts</b></td>
+                    </tr>
+                    <tr>
+                        <td class="rank-3">🥉 #3</td>
+                        <td><b>Ananya Singh</b></td>
+                        <td><span style="color: #fb923c;">Eco-Warrior 🌿</span></td>
+                        <td><b>310 pts</b></td>
+                    </tr>
+                    <tr>
+                        <td>#4</td>
+                        <td><span id="currentUserRowName">User 1 (You)</span></td>
+                        <td>Eco-Beginner 🌱</td>
+                        <td><b id="currentUserRowTokens" style="color: #34d399;">150 pts</b></td>
+                    </tr>
+                    <tr>
+                        <td>#5</td>
+                        <td><b>Vikram Malhotra</b></td>
+                        <td>Eco-Beginner 🌱</td>
+                        <td><b>120 pts</b></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Slide 4: Impact Analytics -->
+        <div id="slide-4" class="slide-panel">
+            <h2>📈 Ecosystem Impact & Architecture</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-top: 20px;">
+                <div style="background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 14px; border: 1px solid var(--border-color);">
+                    <h3 style="margin:0; font-size:0.85rem; color:var(--text-muted);">Current User Tier</h3>
+                    <p style="font-size:1.8rem; font-weight:800; color:#34d399; margin:8px 0 0 0;">Eco-Warrior 🌿</p>
+                </div>
+                <div style="background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 14px; border: 1px solid var(--border-color);">
+                    <h3 style="margin:0; font-size:0.85rem; color:var(--text-muted);">Total Tokens</h3>
+                    <p id="analyticsTokens" style="font-size:1.8rem; font-weight:800; color:#38bdf8; margin:8px 0 0 0;">150 pts</p>
+                </div>
+            </div>
+            <p style="margin-top: 30px; color: var(--text-muted); line-height: 1.6;">
+                Mission LiFE Carbon Tracker uses a robust polyglot persistence architecture combining H2 SQL database for user tokens/profiles and MongoDB Atlas for high-frequency activity audit logs[cite: 1, 3].
+            </p>
+        </div>
     </div>
 </div>
 
 <script>
-    // Backend API par Activity bhejne ka function
+    let currentUser = { id: 1, name: "User 1", tokens: 150 };
+
+    function handleLogin() {
+        const uid = document.getElementById('loginUserId').value;
+        if(!uid) return alert('Please enter User ID');
+        currentUser.id = uid;
+        currentUser.name = "User " + uid;
+        
+        document.getElementById('displayUser').innerText = currentUser.name;
+        document.getElementById('currentUserRowName').innerText = currentUser.name + " (You)";
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app-container').style.display = 'flex';
+        
+        updateTokenDisplay();
+    }
+
+    function handleLogout() {
+        document.getElementById('app-container').style.display = 'none';
+        document.getElementById('login-screen').style.display = 'flex';
+    }
+
+    function switchSlide(index, title) {
+        const panels = document.querySelectorAll('.slide-panel');
+        const buttons = document.querySelectorAll('.nav-btn');
+
+        panels.forEach((panel, i) => {
+            panel.classList.remove('active');
+            buttons[i].classList.remove('active');
+        });
+
+        panels[index].classList.add('active');
+        buttons[index].classList.add('active');
+        document.getElementById('pageTitle').innerText = title;
+    }
+
+    function selectActivityPreset(type, action, element) {
+        document.getElementById('activityType').value = type;
+        document.getElementById('actionDetails').value = action;
+        
+        document.querySelectorAll('.quick-card').forEach(card => card.classList.remove('selected'));
+        element.classList.add('selected');
+        updateLivePreview();
+    }
+
+    function updateLivePreview() {
+        const action = document.getElementById('actionDetails').value;
+        const qty = parseFloat(document.getElementById('quantity').value) || 0;
+        let rate = 192; // default petrol car
+        if(action === 'Public Bus') rate = 80;
+        if(action === 'Bicycle' || action === 'Solar') rate = 0;
+        if(action === 'Electricity') rate = 820;
+
+        const total = rate * qty;
+        document.getElementById('livePreview').innerText = `Est. CO2: ~${total.toLocaleString()}g`;
+    }
+
+    function updateTokenDisplay() {
+        document.getElementById('sidebarTokens').innerText = currentUser.tokens;
+        document.getElementById('headerTokens').innerText = currentUser.tokens;
+        document.getElementById('analyticsTokens').innerText = currentUser.tokens + ' pts';
+        document.getElementById('currentUserRowTokens').innerText = currentUser.tokens + ' pts';
+    }
+
     async function submitActivity() {
         const data = {
-            userId: document.getElementById('userId').value,
+            userId: currentUser.id,
             activityType: document.getElementById('activityType').value,
             actionDetails: document.getElementById('actionDetails').value,
             quantity: document.getElementById('quantity').value
@@ -88,13 +548,22 @@
             
             const resDiv = document.getElementById('activityResult');
             resDiv.style.display = 'block';
-            resDiv.innerHTML = `<b>Success!</b> Carbon Emitted: <b>${result.carbonEmittedGrams}g CO2</b> | Eco-Points Earned: <b>+${result.pointsAwarded} pts</b>`;
+            resDiv.innerHTML = `🚀 <b>Telemetry Logged Successfully!</b><br>• Carbon Emitted: <b>${result.carbonEmittedGrams}g CO2</b><br>• Eco-Tokens Awarded: <b style="color:#facc15;">+${result.pointsAwarded} pts</b><br><i>💡 AI Recommendation: Great choice! Keep reducing your footprint to climb the leaderboard.</i>`;
+            
+            if(result.pointsAwarded) {
+                currentUser.tokens += result.pointsAwarded;
+                updateTokenDisplay();
+
+                const tbody = document.getElementById('historyTableBody');
+                const newRow = document.createElement('tr');
+                newRow.innerHTML = `<td>${data.activityType}</td><td>${data.actionDetails} (${data.quantity} units)</td><td>${result.carbonEmittedGrams}g</td><td><span style="color: #34d399; font-weight: 700;">+${result.pointsAwarded} pts</span></td>`;
+                tbody.prepend(newRow);
+            }
         } catch (error) {
             alert('Error connecting to backend: ' + error);
         }
     }
 
-    // Groq AI se baat karne ka function
     async function askAi() {
         const input = document.getElementById('aiInput');
         const chatBox = document.getElementById('chatBox');
